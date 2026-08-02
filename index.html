@@ -782,11 +782,11 @@
     const li = el.closest('li');
     li.classList.toggle('done-item');
   }
-</script>
-  document.addEventListener('contextmenu', function(e) {
+<script>
+  // Disable right-click context menu
+  document.addEventListener('contextmenu', function (e) {
     e.preventDefault();
-    return false;
-  });
+  }, false);
 </script>
 </body>
 </html>
