@@ -757,18 +757,18 @@
 (function() {
   "use strict";
 
-  // 1. Disable right-click
+  // 1. Disable right-click context menu
   document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
     return false;
   });
 
-  // 2. Block keyboard shortcuts
+  // 2. Block keyboard shortcuts for viewing source / copying
   document.addEventListener('keydown', function(e) {
     var blocked =
-      (e.ctrlKey && ['u','U','s','S','a','A','c','C','p','P'].includes(e.key)) ||
+      (e.ctrlKey && ['u','U','s','S','p','P'].includes(e.key)) ||
       (e.ctrlKey && e.shiftKey && ['i','I','j','J','c','C','k','K'].includes(e.key)) ||
-      (e.metaKey && ['u','U','s','S','a','A','c','C','p','P'].includes(e.key)) ||
+      (e.metaKey && ['u','U','s','S','p','P'].includes(e.key)) ||
       (e.metaKey && e.shiftKey && ['i','I','j','J','c','C'].includes(e.key)) ||
       e.key === 'F12';
     if (blocked) {
@@ -778,43 +778,27 @@
     }
   });
 
-  // 3. Disable text selection
-  document.addEventListener('selectstart', function(e) {
-    e.preventDefault();
-    return false;
-  });
+  // 3. Disable text selection only (NOT pointer events — keeps buttons clickable)
+  var style = document.createElement('style');
+  style.innerHTML =
+    '* { -webkit-user-select:none!important; -moz-user-select:none!important; -ms-user-select:none!important; user-select:none!important; }' +
+    'button, a { cursor:pointer!important; pointer-events:auto!important; }' +
+    'img { -webkit-user-drag:none!important; user-drag:none!important; }';
+  document.head.appendChild(style);
 
-  // 4. Disable copy/cut
-  document.addEventListener('copy', function(e) {
-    e.preventDefault();
-    return false;
-  });
-  document.addEventListener('cut', function(e) {
-    e.preventDefault();
-    return false;
-  });
+  // 4. Disable copy/cut events
+  document.addEventListener('copy', function(e) { e.preventDefault(); return false; });
+  document.addEventListener('cut', function(e) { e.preventDefault(); return false; });
 
   // 5. Disable drag
-  document.addEventListener('dragstart', function(e) {
-    e.preventDefault();
-    return false;
-  });
+  document.addEventListener('dragstart', function(e) { e.preventDefault(); return false; });
 
   // 6. Disable print
-  window.addEventListener('beforeprint', function(e) {
+  window.addEventListener('beforeprint', function() {
     document.body.innerHTML = '<h2 style="text-align:center;margin-top:40vh;font-family:sans-serif;">Printing is not permitted.</h2>';
   });
 
-  // 7. CSS: disable selection and pointer on images
-  var style = document.createElement('style');
-  style.innerHTML = [
-    '* { -webkit-user-select:none!important; -moz-user-select:none!important; -ms-user-select:none!important; user-select:none!important; }',
-    'img { pointer-events:none!important; -webkit-user-drag:none!important; user-drag:none!important; }',
-    'input, textarea, [contenteditable] { -webkit-user-select:text!important; user-select:text!important; }'
-  ].join('');
-  document.head.appendChild(style);
-
-  // 8. DevTools detection — blur page if opened
+  // 7. DevTools detection — blur page if opened (does NOT affect pointer events on buttons)
   var threshold = 160;
   var blurred = false;
   setInterval(function() {
@@ -823,23 +807,15 @@
     if (open && !blurred) {
       blurred = true;
       document.body.style.filter = 'blur(10px)';
-      document.body.style.pointerEvents = 'none';
     } else if (!open && blurred) {
       blurred = false;
       document.body.style.filter = '';
-      document.body.style.pointerEvents = '';
     }
   }, 500);
 
-  // 9. Obfuscate: override view-source attempts
-  Object.defineProperty(document, 'body', {
-    configurable: false,
-    enumerable: true,
-    get: function() { return document.documentElement.children[1]; }
-  });
-
 })();
 </script>
+
 
 <script>
   let current = null;
