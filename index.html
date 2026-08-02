@@ -783,10 +783,22 @@
     li.classList.toggle('done-item');
   }
 <script>
-  // Disable right-click context menu
-  document.addEventListener('contextmenu', function (e) {
+(function () {
+  // Debug: uncomment to see the handler fire in the console
+  // const debug = true;
+  function blockContext(e) {
+    // if (debug) console.log('blocked contextmenu on', e.target);
     e.preventDefault();
-  }, false);
+    return false;
+  }
+
+  // Add listener in capture phase to catch it early
+  document.addEventListener('contextmenu', blockContext, { capture: true });
+
+  // Fallbacks for inline handlers / older browsers
+  document.body && (document.body.oncontextmenu = () => false);
+  window.oncontextmenu = () => false;
+})();
 </script>
 </body>
 </html>
