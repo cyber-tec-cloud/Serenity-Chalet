@@ -845,8 +845,28 @@
     const li = el.closest('li');
     li.classList.toggle('done-item');
   }
+<script>
+(function () {
+  // return true when the target is an input where context menu should be allowed
+  function isFormField(el) {
+    return el && (el.closest && el.closest('input, textarea, select, [contenteditable="true"]'));
+  }
+
+  // block right-click except on form fields
+  document.addEventListener('contextmenu', function (e) {
+    if (isFormField(e.target)) return; // allow context menu for inputs
+    e.preventDefault();
+  }, { passive: false });
+
+  // block ContextMenu key and Shift+F10 (keyboard context menu)
+  document.addEventListener('keydown', function (e) {
+    // e.key === 'ContextMenu' (supported) or keyCode 93; shift+F10 also opens the context menu
+    if (e.key === 'ContextMenu' || e.keyCode === 93 || (e.shiftKey && e.key === 'F10')) {
+      if (isFormField(document.activeElement)) return;
+      e.preventDefault();
+    }
+  }, false);
+})();
 </script>
-
-
 </body>
 </html>
